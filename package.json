@@ -1,26 +1,27 @@
 {
-  "name": "content-writer-agent",
+  "name": "writing-continuation-agent",
   "version": "1.0.0",
-  "description": "AI agent for content writing powered by LangChain",
-  "main": "dist/index.js",
+  "description": "AI writing continuation agent with evaluator feedback loop",
   "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
+    "example": "tsx src/index.ts --input \"The old lighthouse keeper climbed the spiral staircase as he had done every evening for thirty years. Tonight, however, something was different. The light at the top flickered in a pattern he had never seen before.\" --verbose",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["langchain", "ai", "agent", "typescript"],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
     "@langchain/openai": "^0.2.0",
-    "dotenv": "^16.4.5"
+    "zod": "^3.23.0",
+    "dotenv": "^16.4.5",
+    "commander": "^12.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
-    "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "typescript": "^5.5.0",
+    "tsx": "^4.7.0",
+    "@types/node": "^22.0.0"
   }
 }
