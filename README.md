@@ -6,6 +6,17 @@ An intelligent AI agent capable of generating any type of content. Built with No
 
 The Content Writer Agent is designed to intelligently generate content for various use cases including blog posts, social media content, technical documentation, creative writing, and much more. With its flexible architecture, it can be extended to handle specialized content generation tasks while maintaining consistency in quality and style.
 
+### Multi-Agent Architecture
+
+This application implements a sophisticated multi-agent workflow featuring:
+
+- **Worker Agent**: Generates content based on user requirements and success criteria
+- **Evaluator Agent**: Validates output quality and checks if success criteria are met
+- **Feedback Loop**: Iteratively improves content through structured evaluation and feedback
+- **Structured Outputs**: Uses Zod schemas for type-safe, validated agent outputs
+
+This architecture ensures higher quality outputs through automated evaluation and iterative improvement, similar to production AI systems like OpenAI's o1-style reasoning.
+
 ## Features
 
 - **Versatile Content Generation**: Generates any type of content across multiple formats (blog, social media, technical, creative, etc.)
@@ -59,14 +70,43 @@ Execute the built application:
 npm start
 ```
 
+## Examples
+
+### Simple Content Writer
+Generate content with basic functionality:
+```bash
+npm run example:simple
+```
+
+### Multi-Agent Sidekick (Advanced)
+Run the full multi-agent workflow with worker and evaluator:
+```bash
+npm run example:sidekick
+```
+
+This demonstrates:
+- Worker agent generating content
+- Evaluator agent assessing quality
+- Iterative feedback and improvement
+- Structured output validation
+
 ## Project Structure
 
 ```
 src/
-├── index.ts              # Application entry point
+├── index.ts                          # Application entry point
 ├── agents/
-│   ├── baseAgent.ts     # Base agent class
-│   └── contentWriterAgent.ts  # Content writer agent implementation
+│   ├── baseAgent.ts                 # Base agent class
+│   ├── contentWriterAgent.ts        # Simple content writer agent
+│   ├── workerAgent.ts               # Worker node for multi-agent flow
+│   └── evaluatorAgent.ts            # Evaluator node for quality assessment
+├── graph/
+│   └── sidekickGraph.ts             # LangGraph orchestration
+├── types/
+│   ├── state.ts                     # Agent state definitions
+│   └── evaluator.ts                 # Structured output schemas
+└── examples/
+    └── sidekickExample.ts           # Multi-agent workflow example
 ```
 
 ## Usage Example
@@ -108,6 +148,22 @@ export class CustomAgent extends BaseAgent {
   }
 }
 ```
+
+## Architecture
+
+For detailed information about the multi-agent architecture, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+Key features:
+- **LangGraph**: State graph-based orchestration of agent workflows
+- **Structured Outputs**: Zod schemas for type-safe LLM responses
+- **Feedback Loops**: Iterative improvement through evaluation
+- **Full Conversation History**: Context-aware agent interactions
+
+## Learn More
+
+- [LangChain Documentation](https://python.langchain.com/)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
 
 ## License
 

@@ -8,15 +8,19 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "example:simple": "tsx src/agents/contentWriterAgent.ts",
+    "example:sidekick": "tsx src/examples/sidekickExample.ts"
   },
   "keywords": ["langchain", "ai", "agent", "typescript"],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
     "@langchain/openai": "^0.2.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",
