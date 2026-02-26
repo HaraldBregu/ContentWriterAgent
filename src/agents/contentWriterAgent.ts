@@ -1,4 +1,4 @@
-import { BaseAgent, AgentConfig, Message } from "./baseAgent";
+import { BaseAgent, AgentConfig } from "./baseAgent";
 
 export interface ContentWritingRequest {
   topic: string;
@@ -23,14 +23,8 @@ export class ContentWriterAgent extends BaseAgent {
   async write(request: ContentWritingRequest): Promise<string> {
     const style = request.style || "blog";
     const length = request.length || "medium";
-
     const prompt = `Write ${length} ${style} content about: "${request.topic}"`;
 
-    const messages: Message[] = [
-      { role: "system", content: this.getSystemPrompt() },
-      { role: "user", content: prompt },
-    ];
-
-    return this.invoke(messages);
+    return this.invoke(this.getSystemPrompt(), prompt);
   }
 }

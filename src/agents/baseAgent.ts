@@ -7,11 +7,6 @@ export interface AgentConfig {
   temperature?: number;
 }
 
-export interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
-
 export class BaseAgent {
   private model: ChatOpenAI;
   protected config: AgentConfig;
@@ -24,13 +19,12 @@ export class BaseAgent {
     });
   }
 
-  async invoke(messages: Message[]): Promise<string> {
-    const formattedMessages = messages.map((msg) => ({
-      role: msg.role as "user" | "assistant" | "system",
-      content: msg.content,
-    }));
+  async invoke(systemPrompt: string, userMessage: string): Promise<string> {
+    const response = await this.model.invoke([
+      { role: "system" as const, content: systemPrompt },
+      { role: "user" as const, content: userMessage },
+    ] as any);
 
-    const response = await this.model.invoke(formattedMessages as any);
     return typeof response.content === "string"
       ? response.content
       : JSON.stringify(response.content);
