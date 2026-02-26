@@ -9,19 +9,18 @@ const EvaluationSchema = z.object({
   feedback: z.string().describe("Specific feedback for improvement"),
 });
 
-type EvaluationResult = z.infer<typeof EvaluationSchema>;
-
-const evaluator = new ChatOpenAI({
-  model: config.model,
-  temperature: config.evaluatorTemperature,
-});
-
-const evaluatorWithStructured = evaluator.withStructuredOutput(EvaluationSchema);
-
 export async function evaluatorNode(
   state: WritingStateValue
 ): Promise<Partial<WritingStateValue>> {
   const { inputText, continuation } = state;
+
+  // Create LLM instance inside function (after dotenv is loaded)
+  const evaluator = new ChatOpenAI({
+    model: config.model,
+    temperature: config.evaluatorTemperature,
+  });
+
+  const evaluatorWithStructured = evaluator.withStructuredOutput(EvaluationSchema);
 
   const systemPrompt = `You are an expert writing quality evaluator. Your task is to assess a continuation of a piece of text based on specific criteria.
 

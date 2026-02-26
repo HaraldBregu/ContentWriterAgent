@@ -1,11 +1,12 @@
+// Load environment variables FIRST, before any other imports
 import dotenv from "dotenv";
+dotenv.config();
+
 import { program } from "commander";
 import { readFileSync } from "fs";
 import { createInterface } from "readline";
 import { createWritingGraph } from "@/graph";
 import { WritingStateValue } from "@/state";
-
-dotenv.config();
 
 async function runWritingAgent(
   inputText: string,

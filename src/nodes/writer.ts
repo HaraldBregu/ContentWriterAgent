@@ -2,13 +2,14 @@ import { ChatOpenAI } from "@langchain/openai";
 import { WritingStateValue } from "@/state";
 import { config } from "@/config";
 
-const writer = new ChatOpenAI({
-  model: config.model,
-  temperature: config.writerTemperature,
-});
-
 export async function writerNode(state: WritingStateValue): Promise<Partial<WritingStateValue>> {
   const { inputText, evaluationFeedback, iteration } = state;
+
+  // Create LLM instance inside function (after dotenv is loaded)
+  const writer = new ChatOpenAI({
+    model: config.model,
+    temperature: config.writerTemperature,
+  });
 
   let systemPrompt = `You are a creative writing continuation assistant. Your task is to seamlessly continue a piece of text provided by the user.
 
