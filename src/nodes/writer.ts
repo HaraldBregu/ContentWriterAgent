@@ -36,19 +36,23 @@ ${evaluationFeedback}
 Please revise the continuation to address this feedback while maintaining the quality and style of the original.`;
   }
 
-  console.log(`[writer] Iteration ${iteration + 1}: Generating continuation...`);
+  console.log(`[writer] Iteration ${iteration + 1}: Generating continuation...\n`);
 
   try {
-    const response = await writer.invoke([
+    let continuation = "";
+
+    const stream = await writer.stream([
       { role: "system" as const, content: systemPrompt },
       { role: "user" as const, content: userMessage },
     ] as any);
 
-    const continuation = typeof response.content === "string"
-      ? response.content
-      : JSON.stringify(response.content);
+    for await (const chunk of stream) {
+      const content = String(chunk.content || "");
+      continuation += content;
+      if (content) process.stdout.write(content);
+    }
 
-    console.log(`[writer] Generated ${continuation.length} characters of continuation`);
+    console.log(`\n\n[writer] Generated ${continuation.length} characters of continuation`);
 
     return {
       continuation,
