@@ -155,13 +155,13 @@ START
 
 Defined in `src/marker_writer/markers.ts`. Uses Unicode Private Use Area characters (invisible to users, machine-parseable):
 
-| Marker                          | Code Point           | Purpose                            |
-| ------------------------------- | -------------------- | ---------------------------------- |
-| `CONTINUE`                      | `U+E000`             | Write new content at this position |
+| Marker                          | Code Point          | Purpose                            |
+| ------------------------------- | ------------------- | ---------------------------------- |
+| `CONTINUE`                      | `U+E000`            | Write new content at this position |
 | `REWRITE_START` / `REWRITE_END` | `U+E001` / `U+E002` | Mark region to rewrite             |
 | `ENHANCE_START` / `ENHANCE_END` | `U+E003` / `U+E004` | Mark region to enhance             |
 | `DELETE_START` / `DELETE_END`   | `U+E005` / `U+E006` | Mark region to delete              |
-| `COMMENT`                       | `U+E007`             | Inline comment/instruction         |
+| `COMMENT`                       | `U+E007`            | Inline comment/instruction         |
 
 ### State
 
