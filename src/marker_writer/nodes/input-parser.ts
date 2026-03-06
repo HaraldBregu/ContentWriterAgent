@@ -158,10 +158,12 @@ export async function inputParserNode(
     } else if (/[.!?]$/.test(lastChar)) {
       markerPosition = 'END_OF_TEXT';
       operationType = 'CONTINUE';
-    } else if (/[,;:\-—]$/.test(lastChar) || /\w$/.test(lastChar)) {
+    } else if (/\w$/.test(lastChar)) {
+      // Word ends mid-sentence with no following text — writer must complete
       markerPosition = 'MID_SENTENCE';
       operationType = 'CONTINUE';
     } else {
+      // Punctuation (,:;—) or anything else at end-of-text → treat as end
       markerPosition = 'END_OF_TEXT';
       operationType = 'CONTINUE';
     }

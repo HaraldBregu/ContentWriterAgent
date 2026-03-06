@@ -29,7 +29,10 @@
       "Bash(grep:*)",
       "Bash(yarn:*)",
       "Bash(yarn test:paired_markers:*)",
-      "Bash(yarn test:edge_case:*)"
+      "Bash(yarn test:edge_case:*)",
+      "Bash(yarn test:voice_matching:*)",
+      "Write",
+      "Edit"
     ]
   }
 }
