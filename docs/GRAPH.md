@@ -65,29 +65,79 @@ Defined in `src/state.ts`:
 
 A linear pipeline that takes a document with a Unicode marker at the cursor position, analyzes the context, plans the writing, generates text, and stitches the result back into the document.
 
+### How It Works
+
+The frontend inserts an invisible Unicode marker at the user's cursor position and sends the full text to the agent:
+
+```ts
+// User clicks in the middle of their text → frontend inserts marker
+const textWithMarker = textBefore + '\uE000' + textAfter;
+// Send to agent
+agent.invoke({ rawInput: textWithMarker });
+```
+
+### Every Pattern It Handles
+
+```
+PATTERN                           DETECTED AS           OPERATION
+──────────────────────────────────────────────────────────────────
+text text text█                   END_OF_TEXT            CONTINUE
+█text text text                   START_OF_TEXT          PREPEND
+text\n\n█\n\ntext                 BETWEEN_BLOCKS         BRIDGE
+text. █Text. text                 MID_PARAGRAPH          BRIDGE
+text word█ word text              MID_SENTENCE           BRIDGE
+## Heading\n█                     AFTER_HEADING          FILL_SECTION
+text\n█\n## Heading               BEFORE_HEADING         BRIDGE
+text text█\nmore text             INLINE_END             BRIDGE
+█                                 EMPTY_DOCUMENT         GENERATE
+text⟨START⟩region⟨END⟩text       REGION_SELECTED        REWRITE_REGION
+```
+
+### The Graph
+
 ```
 START
   │
   ▼
-input_parser
-  │
-  ▼
-intent_analyzer
-  │
-  ▼
-style_analyzer
-  │
-  ▼
-planner
-  │
-  ▼
-writer
-  │
-  ▼
-stitcher
-  │
-  ▼
-END
+┌──────────────┐
+│ INPUT PARSER  │  ← NO LLM. Pure string parsing. Instant. Free.
+│               │     Finds markers, classifies pattern, extracts all context.
+│               │     This is deterministic and NEVER wrong.
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ INTENT       │  ← For simple continuations: skips LLM entirely.
+│ ANALYZER     │     For complex cases: uses GPT-4o with parsed context.
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ STYLE        │  ← Profiles the text nearest to the marker.
+│ ANALYZER     │     Tone, rhythm, vocabulary, POV, tense.
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ PLANNER      │  ← Position-aware plan. Knows if it needs to bridge,
+│              │     complete a sentence, fill a section, or prepend.
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ WRITER       │  ← Gets position-specific instructions per pattern.
+│              │     MID_SENTENCE gets "complete the sentence first."
+│              │     BRIDGE gets "end by connecting to text-after."
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ STITCHER     │  ← Assembles final document. Handles separators,
+│              │     spacing, paragraph breaks per operation type.
+└──────┬───────┘
+       │
+       ▼
+      END
 ```
 
 ### Nodes
@@ -105,31 +155,13 @@ END
 
 Defined in `src/marker_writer/markers.ts`. Uses Unicode Private Use Area characters (invisible to users, machine-parseable):
 
-| Marker                          | Code Point          | Purpose                            |
-| ------------------------------- | ------------------- | ---------------------------------- |
-| `CONTINUE`                      | `U+E000`            | Write new content at this position |
+| Marker                          | Code Point           | Purpose                            |
+| ------------------------------- | -------------------- | ---------------------------------- |
+| `CONTINUE`                      | `U+E000`             | Write new content at this position |
 | `REWRITE_START` / `REWRITE_END` | `U+E001` / `U+E002` | Mark region to rewrite             |
 | `ENHANCE_START` / `ENHANCE_END` | `U+E003` / `U+E004` | Mark region to enhance             |
 | `DELETE_START` / `DELETE_END`   | `U+E005` / `U+E006` | Mark region to delete              |
-| `COMMENT`                       | `U+E007`            | Inline comment/instruction         |
-
-### Marker Positions
-
-The input parser classifies the marker into one of these positions (`src/marker_writer/types.ts`):
-
-| Position          | Pattern                   | Operation      |
-| ----------------- | ------------------------- | -------------- |
-| `END_OF_TEXT`     | `text text text█`         | `CONTINUE`     |
-| `START_OF_TEXT`   | `█text text text`         | `PREPEND`      |
-| `BETWEEN_BLOCKS`  | `text\n\n█\n\ntext`       | `BRIDGE`       |
-| `MID_PARAGRAPH`   | `text. █text. text`       | `BRIDGE`       |
-| `MID_SENTENCE`    | `text word█ word text`    | `BRIDGE`       |
-| `AFTER_HEADING`   | `## Heading\n█`           | `FILL_SECTION` |
-| `BEFORE_HEADING`  | `text\n█\n## Heading`     | `BRIDGE`       |
-| `INLINE_END`      | `text█\nmore text`        | `BRIDGE`       |
-| `EMPTY_DOCUMENT`  | `█`                       | `GENERATE`     |
-| `BETWEEN_LINES`   | `line1\n█\nline2`         | `BRIDGE`       |
-| `REGION_SELECTED` | `text⟨START⟩sel⟨END⟩text` | `*_REGION`     |
+| `COMMENT`                       | `U+E007`             | Inline comment/instruction         |
 
 ### State
 
