@@ -114,8 +114,8 @@ async function interactiveMode(): Promise<void> {
 
 // CLI Setup
 program
-  .name('writing-agent')
-  .description('AI writing continuation agent with evaluator feedback loop')
+  .name('atlas')
+  .description('AI writing agent with evaluator feedback loop')
   .version('1.0.0');
 
 program
