@@ -43,5 +43,9 @@ export async function plannerNode(
     },
   ] as any);
 
-  return { writingPlan: JSON.parse(response.content as string) };
+  const raw = (response.content as string)
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/, '')
+    .trim();
+  return { writingPlan: JSON.parse(raw) };
 }

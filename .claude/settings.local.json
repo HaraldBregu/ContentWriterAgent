@@ -17,7 +17,11 @@
       "Bash(npx tsx:*)",
       "Bash(ls:*)",
       "Bash(yarn test:single:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(gh repo:*)",
+      "Bash(where gh:*)",
+      "Bash(yarn test:basic_position:*)",
+      "Bash(yarn test:mid_sentence:*)"
     ]
   }
 }

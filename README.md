@@ -27,11 +27,11 @@ START → writer → evaluator → router
                                 └─ iterations >= max → formatter → END
 ```
 
-| Node          | Description                                                                               |
-| ------------- | ----------------------------------------------------------------------------------------- |
+| Node          | Description                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------- |
 | **writer**    | Generates a 200–400 word continuation using GPT-4o. Incorporates evaluator feedback on retries. |
-| **evaluator** | Scores the continuation (0–10) on coherence, style consistency, quality, and flow.        |
-| **formatter** | Lightly polishes the final continuation without altering meaning.                         |
+| **evaluator** | Scores the continuation (0–10) on coherence, style consistency, quality, and flow.              |
+| **formatter** | Lightly polishes the final continuation without altering meaning.                               |
 
 ### Marker Writer Graph
 
@@ -41,14 +41,14 @@ A linear pipeline that takes a document with a Unicode marker at the cursor posi
 START → input_parser → intent_analyzer → style_analyzer → planner → writer → stitcher → END
 ```
 
-| Node                | Description                                                                                      |
-| ------------------- | ------------------------------------------------------------------------------------------------ |
-| **input_parser**    | Pure logic (no LLM). Finds markers, classifies position, extracts surrounding context.           |
+| Node                | Description                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| **input_parser**    | Pure logic (no LLM). Finds markers, classifies position, extracts surrounding context.                |
 | **intent_analyzer** | Determines content type, topic, audience, tone, length. Heuristics for simple cases, LLM for complex. |
-| **style_analyzer**  | Profiles the text's tone, rhythm, vocabulary, POV, tense, and patterns.                          |
-| **planner**         | Creates a position-aware writing plan with approach, topics, transitions, and word count target.  |
-| **writer**          | Generates the insertion text using style profile and writing plan.                                |
-| **stitcher**        | Pure logic (no LLM). Assembles the final document with appropriate spacing and separators.       |
+| **style_analyzer**  | Profiles the text's tone, rhythm, vocabulary, POV, tense, and patterns.                               |
+| **planner**         | Creates a position-aware writing plan with approach, topics, transitions, and word count target.      |
+| **writer**          | Generates the insertion text using style profile and writing plan.                                    |
+| **stitcher**        | Pure logic (no LLM). Assembles the final document with appropriate spacing and separators.            |
 
 #### Supported Marker Positions
 
