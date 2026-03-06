@@ -158,12 +158,12 @@ export async function inputParserNode(
     } else if (/[.!?]$/.test(lastChar)) {
       markerPosition = 'END_OF_TEXT';
       operationType = 'CONTINUE';
-    } else if (/\w$/.test(lastChar)) {
-      // Word ends mid-sentence with no following text — writer must complete
+    } else if (/[,;]$/.test(lastChar) || /\w$/.test(lastChar)) {
+      // Comma/semicolon or bare word: sentence is incomplete
       markerPosition = 'MID_SENTENCE';
       operationType = 'CONTINUE';
     } else {
-      // Punctuation (,:;—) or anything else at end-of-text → treat as end
+      // Colon, dash, or other punctuation at end-of-text → treat as end
       markerPosition = 'END_OF_TEXT';
       operationType = 'CONTINUE';
     }
