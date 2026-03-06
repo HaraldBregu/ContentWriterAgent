@@ -9,8 +9,9 @@ export async function plannerNode(
   const model = createUnderstandingModel();
 
   const response = await model.invoke([
-    new SystemMessage(
-      `Create a writing plan for this continuation.
+    {
+      role: "system" as const,
+      content: `Create a writing plan for this continuation.
 
        POSITION: ${p.markerPosition}
        OPERATION: ${p.operationType}
@@ -35,11 +36,12 @@ export async function plannerNode(
          "constraints": ["things to avoid"],
          "targetWords": 300
        }`,
-    ),
-    new HumanMessage(
-      `Before: "${p.immediateBefore.slice(-300)}"\nAfter: "${p.immediateAfter.slice(0, 300)}"`,
-    ),
-  ]);
+    },
+    {
+      role: "user" as const,
+      content: `Before: "${p.immediateBefore.slice(-300)}"\nAfter: "${p.immediateAfter.slice(0, 300)}"`,
+    },
+  ] as any);
 
   return { writingPlan: JSON.parse(response.content as string) };
 }
