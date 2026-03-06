@@ -45,5 +45,9 @@ export async function styleAnalyzerNode(
     { role: 'user' as const, content: sampleText },
   ] as any);
 
-  return { styleProfile: JSON.parse(response.content as string) };
+  const raw = (response.content as string)
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/, '')
+    .trim();
+  return { styleProfile: JSON.parse(raw) };
 }
