@@ -12,6 +12,7 @@
     "type-check": "tsc --noEmit",
     "marker-writer": "tsx src/marker_writer/index.ts",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:marker-writer": "tsx src/marker_writer/test-prompts.ts --all",
     "test:basic_position": "tsx src/marker_writer/test-prompts.ts --category BASIC_POSITION",
     "test:mid_sentence": "tsx src/marker_writer/test-prompts.ts --category MID_SENTENCE",
