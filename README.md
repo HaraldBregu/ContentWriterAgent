@@ -1,6 +1,6 @@
-# Writing Continuation Agent
+# Atlas
 
-An intelligent AI agent that continues text with evaluator feedback loops. Built with LangChain, LangGraph, and OpenAI's GPT-4o model.
+An intelligent AI writing agent with evaluator feedback loops. Built with LangChain, LangGraph, and OpenAI's GPT-4o model.
 
 ## Features
 
