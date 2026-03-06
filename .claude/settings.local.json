@@ -13,7 +13,11 @@
       "Bash(yarn format:*)",
       "Bash(npx tsc:*)",
       "Bash(yarn add:*)",
-      "Bash(yarn type-check:*)"
+      "Bash(yarn type-check:*)",
+      "Bash(npx tsx:*)",
+      "Bash(ls:*)",
+      "Bash(yarn test:single:*)",
+      "Bash(node:*)"
     ]
   }
 }

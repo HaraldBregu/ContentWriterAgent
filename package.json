@@ -1,7 +1,7 @@
 {
-  "name": "writing-continuation-agent",
+  "name": "atlas",
   "version": "1.0.0",
-  "description": "AI writing continuation agent with evaluator feedback loop",
+  "description": "AI writing agent with evaluator feedback loop",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
