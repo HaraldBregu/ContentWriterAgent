@@ -1,4 +1,3 @@
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { MarkerPosition } from "@/marker_writer/types";
 import type { WriterStateValue } from "@/marker_writer/state";
 import { createWriterModel } from "@/marker_writer/models";
