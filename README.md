@@ -39,12 +39,14 @@ The system maintains full state through the graph:
 ### Nodes
 
 #### Writer Node
+
 - Receives original text and evaluator feedback
 - Generates natural continuation matching style/tone/voice
 - Uses GPT-4o with temperature 0.7 for creativity
 - Produces ~200-400 words (configurable)
 
 #### Evaluator Node
+
 - Assesses continuation on 4 criteria:
   - **Coherence**: Logical flow and narrative consistency
   - **Style Consistency**: Tone and voice match
@@ -117,12 +119,14 @@ npm run example
 ### Example 1: Suspenseful Fiction
 
 **Input:**
+
 ```
 The old lighthouse keeper climbed the spiral staircase as he had done every evening for thirty years. Tonight, however, something was different. The light at the top flickered in a pattern he had never seen before.
 ```
 
 **Expected Output:**
 The system will generate a continuation that:
+
 - Maintains the atmospheric, suspenseful tone
 - Continues the narrative coherently
 - Preserves the descriptive, introspective style
@@ -131,12 +135,14 @@ The system will generate a continuation that:
 ### Example 2: Technical Documentation
 
 **Input:**
+
 ```
 The REST API provides endpoints for managing user resources. To create a new user, send a POST request to /api/users with the following JSON payload:
 ```
 
 **Expected Output:**
 Continuation will:
+
 - Match the technical, instructional tone
 - Follow proper documentation conventions
 - Provide coherent, relevant technical details
@@ -144,12 +150,14 @@ Continuation will:
 ### Example 3: Creative Writing
 
 **Input:**
+
 ```
 She opened the ancient book with trembling hands. The pages were yellowed and brittle, and the scent of forgotten centuries rose like incense.
 ```
 
 **Expected Output:**
 Continuation will:
+
 - Match the lyrical, poetic tone
 - Maintain narrative immersion
 - Continue the evocative sensory descriptions
@@ -160,12 +168,12 @@ Edit `src/config.ts` to customize:
 
 ```typescript
 export const config = {
-  model: "gpt-4o",              // LLM model
-  writerTemperature: 0.7,       // Creativity (0-1)
-  evaluatorTemperature: 0,      // Determinism (0-1)
-  passThreshold: 7.0,           // Passing score
-  maxIterations: 3,             // Max attempts
-  continuationLength: "200-400 words",
+  model: 'gpt-4o', // LLM model
+  writerTemperature: 0.7, // Creativity (0-1)
+  evaluatorTemperature: 0, // Determinism (0-1)
+  passThreshold: 7.0, // Passing score
+  maxIterations: 3, // Max attempts
+  continuationLength: '200-400 words',
 };
 ```
 
@@ -238,6 +246,7 @@ npm start -- --input "Your text..."
 ## Error Handling
 
 The system handles:
+
 - API failures with informative error messages
 - Rate limiting (respects OpenAI backoff)
 - Malformed LLM responses with Zod validation
@@ -279,6 +288,7 @@ MIT
 ## Support
 
 For issues or questions:
+
 1. Check the error message and console logs ([writer], [evaluator], [router] prefixes)
 2. Ensure your OpenAI API key is valid
 3. Verify you have access to GPT-4o model

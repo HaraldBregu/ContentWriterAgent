@@ -1,4 +1,4 @@
-import { Annotation } from "@langchain/langgraph";
+import { Annotation } from '@langchain/langgraph';
 
 export interface AttemptRecord {
   continuation: string;
@@ -9,15 +9,15 @@ export interface AttemptRecord {
 export const WritingState = Annotation.Root({
   inputText: Annotation<string>({
     reducer: (a, b) => b ?? a,
-    default: () => "",
+    default: () => '',
   }),
   continuation: Annotation<string>({
     reducer: (a, b) => b ?? a,
-    default: () => "",
+    default: () => '',
   }),
   formattedContinuation: Annotation<string>({
     reducer: (a, b) => b ?? a,
-    default: () => "",
+    default: () => '',
   }),
   evaluationScore: Annotation<number>({
     reducer: (a, b) => b ?? a,
@@ -25,7 +25,7 @@ export const WritingState = Annotation.Root({
   }),
   evaluationFeedback: Annotation<string>({
     reducer: (a, b) => b ?? a,
-    default: () => "",
+    default: () => '',
   }),
   passed: Annotation<boolean>({
     reducer: (a, b) => b ?? a,

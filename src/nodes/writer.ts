@@ -1,8 +1,10 @@
-import { ChatOpenAI } from "@langchain/openai";
-import { WritingStateValue } from "@/state";
-import { config } from "@/config";
+import { ChatOpenAI } from '@langchain/openai';
+import { WritingStateValue } from '@/state';
+import { config } from '@/config';
 
-export async function writerNode(state: WritingStateValue): Promise<Partial<WritingStateValue>> {
+export async function writerNode(
+  state: WritingStateValue,
+): Promise<Partial<WritingStateValue>> {
   const { inputText, evaluationFeedback, iteration } = state;
 
   // Create LLM instance inside function (after dotenv is loaded)
@@ -36,29 +38,33 @@ ${evaluationFeedback}
 Please revise the continuation to address this feedback while maintaining the quality and style of the original.`;
   }
 
-  console.log(`[writer] Iteration ${iteration + 1}: Generating continuation...\n`);
+  console.log(
+    `[writer] Iteration ${iteration + 1}: Generating continuation...\n`,
+  );
 
   try {
-    let continuation = "";
+    let continuation = '';
 
     const stream = await writer.stream([
-      { role: "system" as const, content: systemPrompt },
-      { role: "user" as const, content: userMessage },
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: userMessage },
     ] as any);
 
     for await (const chunk of stream) {
-      const content = String(chunk.content || "");
+      const content = String(chunk.content || '');
       continuation += content;
       if (content) process.stdout.write(content);
     }
 
-    console.log(`\n\n[writer] Generated ${continuation.length} characters of continuation`);
+    console.log(
+      `\n\n[writer] Generated ${continuation.length} characters of continuation`,
+    );
 
     return {
       continuation,
     };
   } catch (error) {
-    console.error("[writer] Error generating continuation:", error);
+    console.error('[writer] Error generating continuation:', error);
     throw error;
   }
 }

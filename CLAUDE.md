@@ -20,6 +20,7 @@ After each file edit, run `yarn format` to format the code with Prettier.
 
 ## Git Workflow
 
+- Before committing, run `yarn format` to ensure all files are properly formatted.
 - After each file change, stage the modified files with `git add` and create a commit describing the change.
 - Commit messages should be concise and focus on the **why**, not the **what**.
 - Do not batch unrelated changes into a single commit — each commit should represent one logical change.

@@ -1,6 +1,6 @@
-import type { MarkerPosition } from "@/marker_writer/types";
-import type { WriterStateValue } from "@/marker_writer/state";
-import { createWriterModel } from "@/marker_writer/models";
+import type { MarkerPosition } from '@/marker_writer/types';
+import type { WriterStateValue } from '@/marker_writer/state';
+import { createWriterModel } from '@/marker_writer/models';
 
 export async function writerNode(
   state: WriterStateValue,
@@ -30,10 +30,10 @@ export async function writerNode(
     MID_SENTENCE: `The text stops mid-sentence: "${p.lastSentenceBefore}"
       FIRST: Complete this sentence naturally.
       THEN: Continue with new content.
-      ${p.textAfter ? `END by connecting to: "${p.firstSentenceAfter}"` : ""}`,
+      ${p.textAfter ? `END by connecting to: "${p.firstSentenceAfter}"` : ''}`,
 
     AFTER_HEADING: `Write the section content for: "${p.currentHeading}"
-      ${p.nextHeading ? `The next section is "${p.nextHeading}" — don't overlap with it.` : ""}
+      ${p.nextHeading ? `The next section is "${p.nextHeading}" — don't overlap with it.` : ''}
       Match the depth and length of other sections in the document.`,
 
     BEFORE_HEADING: `Write content that concludes the current section
@@ -61,7 +61,7 @@ export async function writerNode(
 
   const response = await model.invoke([
     {
-      role: "system" as const,
+      role: 'system' as const,
       content: `You are writing text to insert at a precise position in a document.
 
        ═══════════════════════════════════════
@@ -78,17 +78,17 @@ export async function writerNode(
        Vocabulary: ${style.vocabulary}
        Point of view: ${style.pointOfView}
        Tense: ${style.tense}
-       Patterns: ${style.notablePatterns.join(", ")}
+       Patterns: ${style.notablePatterns.join(', ')}
 
        ═══════════════════════════════════════
        PLAN
        ═══════════════════════════════════════
        Approach: ${plan.approach}
-       Topics: ${plan.topics.join(", ")}
+       Topics: ${plan.topics.join(', ')}
        Transition in: ${plan.transitionIn}
        Transition out: ${plan.transitionOut}
        Target: ~${plan.targetWords} words
-       Avoid: ${plan.constraints.join("; ")}
+       Avoid: ${plan.constraints.join('; ')}
 
        ═══════════════════════════════════════
        RULES
@@ -101,11 +101,11 @@ export async function writerNode(
        5. Stay within ±20% of word target`,
     },
     {
-      role: "user" as const,
+      role: 'user' as const,
       content:
         `TEXT BEFORE MARKER:\n${p.immediateBefore}\n\n` +
         `---WRITE HERE---\n\n` +
-        `TEXT AFTER MARKER:\n${p.immediateAfter || "(end of document)"}`,
+        `TEXT AFTER MARKER:\n${p.immediateAfter || '(end of document)'}`,
     },
   ] as any);
 

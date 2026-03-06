@@ -1,5 +1,5 @@
-import { Annotation } from "@langchain/langgraph";
-import type { ParsedInput } from "@/marker_writer/types";
+import { Annotation } from '@langchain/langgraph';
+import type { ParsedInput } from '@/marker_writer/types';
 
 export const WriterState = Annotation.Root({
   // Raw input

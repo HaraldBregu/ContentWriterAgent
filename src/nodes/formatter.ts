@@ -1,8 +1,10 @@
-import { ChatOpenAI } from "@langchain/openai";
-import { WritingStateValue } from "@/state";
-import { config } from "@/config";
+import { ChatOpenAI } from '@langchain/openai';
+import { WritingStateValue } from '@/state';
+import { config } from '@/config';
 
-export async function formatterNode(state: WritingStateValue): Promise<Partial<WritingStateValue>> {
+export async function formatterNode(
+  state: WritingStateValue,
+): Promise<Partial<WritingStateValue>> {
   const { continuation } = state;
 
   // Create LLM instance inside function (after dotenv is loaded)
@@ -22,26 +24,28 @@ ${continuation}
   console.log(`[formatter] Polishing continuation...\n`);
 
   try {
-    let formattedContinuation = "";
+    let formattedContinuation = '';
 
     const stream = await formatter.stream([
-      { role: "system" as const, content: systemPrompt },
-      { role: "user" as const, content: userMessage },
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: userMessage },
     ] as any);
 
     for await (const chunk of stream) {
-      const content = String(chunk.content || "");
+      const content = String(chunk.content || '');
       formattedContinuation += content;
       if (content) process.stdout.write(content);
     }
 
-    console.log(`\n\n[formatter] Polished ${formattedContinuation.length} characters`);
+    console.log(
+      `\n\n[formatter] Polished ${formattedContinuation.length} characters`,
+    );
 
     return {
       formattedContinuation,
     };
   } catch (error) {
-    console.error("[formatter] Error polishing continuation:", error);
+    console.error('[formatter] Error polishing continuation:', error);
     throw error;
   }
 }

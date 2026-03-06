@@ -1,16 +1,16 @@
-import { ChatOpenAI } from "@langchain/openai";
-import { z } from "zod";
-import { WritingStateValue } from "@/state";
-import { config } from "@/config";
+import { ChatOpenAI } from '@langchain/openai';
+import { z } from 'zod';
+import { WritingStateValue } from '@/state';
+import { config } from '@/config';
 
 const EvaluationSchema = z.object({
-  score: z.number().min(0).max(10).describe("Score from 0-10"),
-  passed: z.boolean().describe("Whether the continuation passed evaluation"),
-  feedback: z.string().describe("Specific feedback for improvement"),
+  score: z.number().min(0).max(10).describe('Score from 0-10'),
+  passed: z.boolean().describe('Whether the continuation passed evaluation'),
+  feedback: z.string().describe('Specific feedback for improvement'),
 });
 
 export async function evaluatorNode(
-  state: WritingStateValue
+  state: WritingStateValue,
 ): Promise<Partial<WritingStateValue>> {
   const { inputText, continuation } = state;
 
@@ -20,7 +20,8 @@ export async function evaluatorNode(
     temperature: config.evaluatorTemperature,
   });
 
-  const evaluatorWithStructured = evaluator.withStructuredOutput(EvaluationSchema);
+  const evaluatorWithStructured =
+    evaluator.withStructuredOutput(EvaluationSchema);
 
   const systemPrompt = `You are an expert writing quality evaluator. Your task is to assess a continuation of a piece of text based on specific criteria.
 
@@ -58,12 +59,12 @@ Please evaluate this continuation based on the criteria above.`;
 
   try {
     const evaluation = await evaluatorWithStructured.invoke([
-      { role: "system" as const, content: systemPrompt },
-      { role: "user" as const, content: userMessage },
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: userMessage },
     ] as any);
 
     console.log(
-      `[evaluator] Score: ${evaluation.score}/10 | Passed: ${evaluation.passed}`
+      `[evaluator] Score: ${evaluation.score}/10 | Passed: ${evaluation.passed}`,
     );
     if (!evaluation.passed) {
       console.log(`[evaluator] Feedback: ${evaluation.feedback}`);
@@ -75,7 +76,7 @@ Please evaluate this continuation based on the criteria above.`;
       passed: evaluation.passed,
     };
   } catch (error) {
-    console.error("[evaluator] Error evaluating continuation:", error);
+    console.error('[evaluator] Error evaluating continuation:', error);
     throw error;
   }
 }

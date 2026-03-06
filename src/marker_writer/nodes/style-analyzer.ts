@@ -1,5 +1,5 @@
-import type { WriterStateValue } from "@/marker_writer/state";
-import { createUnderstandingModel } from "@/marker_writer/models";
+import type { WriterStateValue } from '@/marker_writer/state';
+import { createUnderstandingModel } from '@/marker_writer/models';
 
 export async function styleAnalyzerNode(
   state: WriterStateValue,
@@ -9,12 +9,12 @@ export async function styleAnalyzerNode(
   if (p.documentWordCount < 50) {
     return {
       styleProfile: {
-        tone: "neutral",
+        tone: 'neutral',
         avgSentenceLength: 15,
-        paragraphStyle: "mixed",
-        vocabulary: "simple",
-        pointOfView: "third person",
-        tense: "present",
+        paragraphStyle: 'mixed',
+        vocabulary: 'simple',
+        pointOfView: 'third person',
+        tense: 'present',
         notablePatterns: [],
       },
     };
@@ -30,7 +30,7 @@ export async function styleAnalyzerNode(
 
   const response = await model.invoke([
     {
-      role: "system" as const,
+      role: 'system' as const,
       content: `Analyze the writing style precisely. Respond with ONLY valid JSON:
        {
          "tone": "specific tone description",
@@ -42,7 +42,7 @@ export async function styleAnalyzerNode(
          "notablePatterns": ["specific patterns, devices, quirks"]
        }`,
     },
-    { role: "user" as const, content: sampleText },
+    { role: 'user' as const, content: sampleText },
   ] as any);
 
   return { styleProfile: JSON.parse(response.content as string) };

@@ -1,7 +1,11 @@
-import { MARKERS } from "@/marker_writer/markers";
-import type { MarkerName } from "@/marker_writer/markers";
-import type { MarkerPosition, OperationType, ParsedInput } from "@/marker_writer/types";
-import type { WriterStateValue } from "@/marker_writer/state";
+import { MARKERS } from '@/marker_writer/markers';
+import type { MarkerName } from '@/marker_writer/markers';
+import type {
+  MarkerPosition,
+  OperationType,
+  ParsedInput,
+} from '@/marker_writer/types';
+import type { WriterStateValue } from '@/marker_writer/state';
 import {
   stripAllMarkers,
   getCleanIndex,
@@ -13,7 +17,7 @@ import {
   countWords,
   getLineNumber,
   getColumnNumber,
-} from "@/marker_writer/helpers";
+} from '@/marker_writer/helpers';
 
 // Pure logic — no LLM, instant, free, deterministic.
 // Finds the marker, classifies the position pattern, extracts all context
@@ -38,9 +42,9 @@ export async function inputParserNode(
 
   // Step 2: Handle paired markers (rewrite/enhance/delete regions)
   const pairedOps: Record<string, [MarkerName, MarkerName]> = {
-    REWRITE: ["REWRITE_START", "REWRITE_END"],
-    ENHANCE: ["ENHANCE_START", "ENHANCE_END"],
-    DELETE: ["DELETE_START", "DELETE_END"],
+    REWRITE: ['REWRITE_START', 'REWRITE_END'],
+    ENHANCE: ['ENHANCE_START', 'ENHANCE_END'],
+    DELETE: ['DELETE_START', 'DELETE_END'],
   };
 
   for (const [opName, [startMarker, endMarker]] of Object.entries(pairedOps)) {
@@ -58,7 +62,7 @@ export async function inputParserNode(
 
       const parsed: ParsedInput = {
         markerType: startMarker,
-        markerPosition: "REGION_SELECTED",
+        markerPosition: 'REGION_SELECTED',
         operationType: `${opName}_REGION` as OperationType,
         textBefore,
         textAfter,
@@ -87,28 +91,28 @@ export async function inputParserNode(
   }
 
   // Step 3: Handle single CONTINUE marker
-  const continueMarker = markerPositions.find((m) => m.type === "CONTINUE");
+  const continueMarker = markerPositions.find((m) => m.type === 'CONTINUE');
 
   if (!continueMarker) {
     // No marker found — treat entire input as a generation request
     const parsed: ParsedInput = {
-      markerType: "CONTINUE",
-      markerPosition: "EMPTY_DOCUMENT",
-      operationType: "GENERATE",
-      textBefore: "",
-      textAfter: "",
-      selectedRegion: "",
-      immediateBefore: "",
-      immediateAfter: "",
-      lastSentenceBefore: "",
-      firstSentenceAfter: "",
+      markerType: 'CONTINUE',
+      markerPosition: 'EMPTY_DOCUMENT',
+      operationType: 'GENERATE',
+      textBefore: '',
+      textAfter: '',
+      selectedRegion: '',
+      immediateBefore: '',
+      immediateAfter: '',
+      lastSentenceBefore: '',
+      firstSentenceAfter: '',
       isInsideParagraph: false,
       isInsideSentence: false,
       isAfterHeading: false,
       isBeforeHeading: false,
-      currentHeading: "",
-      previousHeading: "",
-      nextHeading: "",
+      currentHeading: '',
+      previousHeading: '',
+      nextHeading: '',
       totalCharsBefore: 0,
       totalCharsAfter: 0,
       documentWordCount: 0,
@@ -134,80 +138,80 @@ export async function inputParserNode(
   let operationType: OperationType;
 
   if (cleanText.trim().length === 0) {
-    markerPosition = "EMPTY_DOCUMENT";
-    operationType = "GENERATE";
+    markerPosition = 'EMPTY_DOCUMENT';
+    operationType = 'GENERATE';
   } else if (trimmedBefore.length === 0 && trimmedAfter.length > 0) {
-    markerPosition = "START_OF_TEXT";
-    operationType = "PREPEND";
+    markerPosition = 'START_OF_TEXT';
+    operationType = 'PREPEND';
   } else if (trimmedBefore.length > 0 && trimmedAfter.length === 0) {
     const lastChar = trimmedBefore.slice(-1);
-    const lastLine = trimmedBefore.split("\n").pop() || "";
+    const lastLine = trimmedBefore.split('\n').pop() || '';
     const isHeading = /^#{1,6}\s+.+$/.test(lastLine.trim());
 
     if (isHeading) {
-      markerPosition = "AFTER_HEADING";
-      operationType = "FILL_SECTION";
-    } else if (trimmedBefore.endsWith("\n\n")) {
-      markerPosition = "END_OF_TEXT";
-      operationType = "CONTINUE";
+      markerPosition = 'AFTER_HEADING';
+      operationType = 'FILL_SECTION';
+    } else if (trimmedBefore.endsWith('\n\n')) {
+      markerPosition = 'END_OF_TEXT';
+      operationType = 'CONTINUE';
     } else if (/[.!?]$/.test(lastChar)) {
-      markerPosition = "END_OF_TEXT";
-      operationType = "CONTINUE";
+      markerPosition = 'END_OF_TEXT';
+      operationType = 'CONTINUE';
     } else if (/[,;:\-—]$/.test(lastChar) || /\w$/.test(lastChar)) {
-      markerPosition = "MID_SENTENCE";
-      operationType = "CONTINUE";
+      markerPosition = 'MID_SENTENCE';
+      operationType = 'CONTINUE';
     } else {
-      markerPosition = "END_OF_TEXT";
-      operationType = "CONTINUE";
+      markerPosition = 'END_OF_TEXT';
+      operationType = 'CONTINUE';
     }
   } else if (
-    textBefore.endsWith("\n\n") ||
-    (trimmedBefore.endsWith("\n") && trimmedAfter.startsWith("\n"))
+    textBefore.endsWith('\n\n') ||
+    (trimmedBefore.endsWith('\n') && trimmedAfter.startsWith('\n'))
   ) {
     const isNextHeading = /^#{1,6}\s+/.test(trimmedAfter);
     const isPrevHeading = /^#{1,6}\s+.+$/.test(
-      (trimmedBefore.split("\n").pop() || "").trim(),
+      (trimmedBefore.split('\n').pop() || '').trim(),
     );
 
     if (isPrevHeading) {
-      markerPosition = "AFTER_HEADING";
-      operationType = "FILL_SECTION";
+      markerPosition = 'AFTER_HEADING';
+      operationType = 'FILL_SECTION';
     } else if (isNextHeading) {
-      markerPosition = "BEFORE_HEADING";
-      operationType = "BRIDGE";
+      markerPosition = 'BEFORE_HEADING';
+      operationType = 'BRIDGE';
     } else {
-      markerPosition = "BETWEEN_BLOCKS";
-      operationType = "BRIDGE";
+      markerPosition = 'BETWEEN_BLOCKS';
+      operationType = 'BRIDGE';
     }
-  } else if (textBefore.endsWith("\n") || trimmedAfter.startsWith("\n")) {
-    markerPosition = "BETWEEN_LINES";
-    operationType = "BRIDGE";
+  } else if (textBefore.endsWith('\n') || trimmedAfter.startsWith('\n')) {
+    markerPosition = 'BETWEEN_LINES';
+    operationType = 'BRIDGE';
   } else if (/\w$/.test(trimmedBefore) || /^\w/.test(trimmedAfter)) {
     const lastChar = trimmedBefore.slice(-1);
     if (/[.!?]$/.test(lastChar)) {
-      markerPosition = "MID_PARAGRAPH";
-      operationType = "BRIDGE";
+      markerPosition = 'MID_PARAGRAPH';
+      operationType = 'BRIDGE';
     } else {
-      markerPosition = "MID_SENTENCE";
-      operationType = "BRIDGE";
+      markerPosition = 'MID_SENTENCE';
+      operationType = 'BRIDGE';
     }
-  } else if (!textBefore.endsWith("\n") && textAfter.startsWith("\n")) {
-    markerPosition = "INLINE_END";
-    operationType = "BRIDGE";
+  } else if (!textBefore.endsWith('\n') && textAfter.startsWith('\n')) {
+    markerPosition = 'INLINE_END';
+    operationType = 'BRIDGE';
   } else {
-    markerPosition = "MID_PARAGRAPH";
-    operationType = "BRIDGE";
+    markerPosition = 'MID_PARAGRAPH';
+    operationType = 'BRIDGE';
   }
 
   // Step 5: Extract all context segments
   const parsed: ParsedInput = {
-    markerType: "CONTINUE",
+    markerType: 'CONTINUE',
     markerPosition,
     operationType,
 
     textBefore,
     textAfter,
-    selectedRegion: "",
+    selectedRegion: '',
 
     immediateBefore: textBefore.slice(-500),
     immediateAfter: textAfter.slice(0, 500),
@@ -215,10 +219,10 @@ export async function inputParserNode(
     firstSentenceAfter: extractFirstSentence(textAfter),
 
     isInsideParagraph:
-      !textBefore.endsWith("\n\n") && !textAfter.startsWith("\n\n"),
+      !textBefore.endsWith('\n\n') && !textAfter.startsWith('\n\n'),
     isInsideSentence: !/[.!?]\s*$/.test(trimmedBefore),
     isAfterHeading: /^#{1,6}\s+.+$/.test(
-      (trimmedBefore.split("\n").pop() || "").trim(),
+      (trimmedBefore.split('\n').pop() || '').trim(),
     ),
     isBeforeHeading: /^#{1,6}\s+/.test(trimmedAfter.trim()),
 
