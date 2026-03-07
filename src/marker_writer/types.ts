@@ -1,59 +1,91 @@
 import type { MarkerName } from '@/marker_writer/markers';
 
-// Every possible relationship between the marker and existing text.
-// The parser classifies into one of these deterministically.
+// ─── Layer 1 Types ───────────────────────────────────────────
+
 export type MarkerPosition =
-  | 'END_OF_TEXT' //  text text text█          → append
-  | 'START_OF_TEXT' //  █text text text          → prepend
-  | 'BETWEEN_BLOCKS' //  text\n\n█\n\ntext        → bridge between sections
-  | 'MID_PARAGRAPH' //  text. █text. text        → insert between sentences
-  | 'MID_SENTENCE' //  text word█ word text     → insert mid-sentence
-  | 'AFTER_HEADING' //  ## Heading\n█             → start new section
-  | 'BEFORE_HEADING' //  text\n█\n## Heading       → end section before next
-  | 'INLINE_END' //  text text█\nmore text    → continue at end of line
-  | 'EMPTY_DOCUMENT' //  █                         → nothing exists, generate
-  | 'BETWEEN_LINES' //  line1\n█\nline2           → insert between lines
-  | 'REGION_SELECTED' //  text⟨START⟩selected⟨END⟩text → operate on region
-  | 'AMBIGUOUS'; //  needs LLM to resolve
+  | 'END_OF_TEXT'
+  | 'START_OF_TEXT'
+  | 'BETWEEN_BLOCKS'
+  | 'MID_PARAGRAPH'
+  | 'MID_SENTENCE'
+  | 'AFTER_HEADING'
+  | 'BEFORE_HEADING'
+  | 'INLINE_END'
+  | 'EMPTY_DOCUMENT'
+  | 'BETWEEN_LINES'
+  | 'REGION_SELECTED';
 
-// What the agent should DO based on position
-export type OperationType =
-  | 'CONTINUE' //  write new content at marker
-  | 'BRIDGE' //  connect text-before to text-after
-  | 'PREPEND' //  write content before existing text
-  | 'GENERATE' //  empty doc, write from scratch
-  | 'FILL_SECTION' //  write section content after heading
-  | 'REWRITE_REGION' //  rewrite marked region
-  | 'ENHANCE_REGION' //  enhance marked region
-  | 'DELETE_REGION'; //  delete marked region
+export type IntentType =
+  | 'continue'
+  | 'insert'
+  | 'rewrite'
+  | 'expand'
+  | 'delete'
+  | 'generate';
 
-// Complete, unambiguous description of the writing task derived from markers.
-export interface ParsedInput {
-  markerType: MarkerName;
-  markerPosition: MarkerPosition;
-  operationType: OperationType;
-
+export interface CursorInfo {
   textBefore: string;
   textAfter: string;
   selectedRegion: string;
+  markerIndex: number;
+  lineNumber: number;
+  columnNumber: number;
+  markerType: MarkerName;
+}
 
-  immediateBefore: string; // last ~500 chars before marker
-  immediateAfter: string; // first ~500 chars after marker
+export interface Intent {
+  type: IntentType;
+  instruction: string;
+}
+
+export interface DocumentState {
+  cleanText: string;
+  wordCount: number;
+  position: MarkerPosition;
+}
+
+// ─── Layer 2 Types ───────────────────────────────────────────
+
+export interface Context {
+  immediateBefore: string;
+  immediateAfter: string;
   lastSentenceBefore: string;
   firstSentenceAfter: string;
-
   isInsideParagraph: boolean;
   isInsideSentence: boolean;
-  isAfterHeading: boolean;
-  isBeforeHeading: boolean;
+}
+
+export interface StyleProfile {
+  tone: string;
+  avgSentenceLength: number;
+  paragraphStyle: string;
+  vocabulary: string;
+  pointOfView: string;
+  tense: string;
+  notablePatterns: string[];
+}
+
+export interface Structure {
   currentHeading: string;
   previousHeading: string;
   nextHeading: string;
+  isAfterHeading: boolean;
+  isBeforeHeading: boolean;
+}
 
-  totalCharsBefore: number;
-  totalCharsAfter: number;
-  documentWordCount: number;
-  markerCharIndex: number;
-  markerLineNumber: number; // 1-indexed
-  markerColumnNumber: number; // 1-indexed
+// ─── Layer 3 Types ───────────────────────────────────────────
+
+export interface AssembledPrompt {
+  system: string;
+  user: string;
+}
+
+// ─── Layer 5 Types ───────────────────────────────────────────
+
+export interface DiffInfo {
+  type: 'insert' | 'replace' | 'delete' | 'generate';
+  position: number;
+  addedText: string;
+  removedText: string;
+  addedWords: number;
 }

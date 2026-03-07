@@ -178,3 +178,51 @@ describe('inputParserNode — paired markers', () => {
     expect(result.parsedInput!.markerType).toBe('REWRITE_START');
   });
 });
+
+describe('inputParserNode — paired CONTINUE markers (inline instruction)', () => {
+  it('extracts inline instruction from between two CONTINUE markers', async () => {
+    const raw = `Hello world.${MARKERS.CONTINUE} add a greeting ${MARKERS.CONTINUE}`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.userInstruction).toBe('add a greeting');
+  });
+
+  it('classifies END_OF_TEXT when text before ends with period (Example 1)', async () => {
+    const raw = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.${MARKERS.CONTINUE} ADD A SENTENCE OR FINISH THE SENTENCE ${MARKERS.CONTINUE}`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.parsedInput!.markerPosition).toBe('END_OF_TEXT');
+    expect(result.parsedInput!.operationType).toBe('CONTINUE');
+    expect(result.userInstruction).toBe(
+      'ADD A SENTENCE OR FINISH THE SENTENCE',
+    );
+  });
+
+  it('classifies MID_SENTENCE when text before ends mid-word (Example 2)', async () => {
+    const raw = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit${MARKERS.CONTINUE} ADD A SENTENCE OR FINISH THE SENTENCE ${MARKERS.CONTINUE}`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.parsedInput!.markerPosition).toBe('MID_SENTENCE');
+    expect(result.parsedInput!.operationType).toBe('CONTINUE');
+    expect(result.userInstruction).toBe(
+      'ADD A SENTENCE OR FINISH THE SENTENCE',
+    );
+  });
+
+  it('strips the inline instruction from the document text', async () => {
+    const raw = `Before text.${MARKERS.CONTINUE} instruction here ${MARKERS.CONTINUE} After text.`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.parsedInput!.textBefore).toBe('Before text.');
+    expect(result.parsedInput!.textAfter).toBe(' After text.');
+    expect(result.userInstruction).toBe('instruction here');
+  });
+
+  it('preserves textAfter when content follows the second marker', async () => {
+    const raw = `Start.${MARKERS.CONTINUE} do something ${MARKERS.CONTINUE} End.`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.parsedInput!.textAfter).toBe(' End.');
+  });
+
+  it('sets empty textAfter when nothing follows the second marker', async () => {
+    const raw = `Hello world.${MARKERS.CONTINUE} finish this ${MARKERS.CONTINUE}`;
+    const result = await inputParserNode(makeState(raw));
+    expect(result.parsedInput!.textAfter).toBe('');
+  });
+});

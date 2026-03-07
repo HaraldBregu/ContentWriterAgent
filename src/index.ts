@@ -22,7 +22,6 @@ async function runWritingAgent(
   const initialState: WritingStateValue = {
     inputText: inputText.trim(),
     continuation: '',
-    formattedContinuation: '',
     evaluationScore: 0,
     evaluationFeedback: '',
     passed: false,
@@ -48,7 +47,7 @@ async function runWritingAgent(
 
     console.log('\n' + '-'.repeat(60) + '\n');
     console.log('GENERATED CONTINUATION:\n');
-    console.log(finalState.formattedContinuation || finalState.continuation);
+    console.log(finalState.continuation);
 
     console.log('\n' + '='.repeat(60));
     console.log('Summary');

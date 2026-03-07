@@ -1,64 +1,45 @@
 import { Annotation } from '@langchain/langgraph';
-import type { ParsedInput } from '@/marker_writer/types';
+import type {
+  CursorInfo,
+  Intent,
+  DocumentState,
+  Context,
+  StyleProfile,
+  Structure,
+  AssembledPrompt,
+  DiffInfo,
+} from '@/marker_writer/types';
 
 export const WriterState = Annotation.Root({
-  // Raw input
+  // Input
   rawInput: Annotation<string>,
   userInstruction: Annotation<string>,
-  knowledgeBasePath: Annotation<string>,
 
-  // Parsed (from Input Parser)
-  parsedInput: Annotation<ParsedInput>,
+  // Layer 1
+  cursorInfo: Annotation<CursorInfo>,
+  intent: Annotation<Intent>,
+  documentState: Annotation<DocumentState>,
 
-  // Intent (from Intent Analyzer)
-  intentAnalysis: Annotation<{
-    contentType: string;
-    writingIntent: string;
-    topic: string;
-    audience: string;
-    desiredTone: string;
-    desiredLength: string;
-    keyMessage: string;
-    constraints: string[];
-  }>,
+  // Layer 2
+  context: Annotation<Context>,
+  styleProfile: Annotation<StyleProfile>,
+  structure: Annotation<Structure>,
+  targetLength: Annotation<number>,
 
-  // Style (from Style Analyzer)
-  styleProfile: Annotation<{
-    tone: string;
-    avgSentenceLength: number;
-    paragraphStyle: string;
-    vocabulary: string;
-    pointOfView: string;
-    tense: string;
-    notablePatterns: string[];
-  }>,
-
-  // Writing plan (from Planner)
-  writingPlan: Annotation<{
-    approach: string;
-    topics: string[];
-    transitionIn: string;
-    transitionOut: string;
-    constraints: string[];
-    targetWords: number;
-  }>,
-
-  // Output
+  // Layer 3
+  assembledPrompt: Annotation<AssembledPrompt>,
   generatedText: Annotation<string>,
-  finalDocument: Annotation<string>,
-  changeDescription: Annotation<string>,
 
-  // Evaluator
-  evaluatorFeedback: Annotation<string>,
+  // Layer 4
+  processedText: Annotation<string>,
+  coherencePass: Annotation<boolean>,
+  coherenceFeedback: Annotation<string>,
   retryCount: Annotation<number>,
 
-  // Memory
-  userPreferences: Annotation<Record<string, string>>({
-    reducer: (a, b) => ({ ...a, ...b }),
-  }),
-  conversationHistory: Annotation<Array<{ role: string; content: string }>>({
-    reducer: (a, b) => [...a, ...b],
-  }),
+  // Layer 5
+  finalDocument: Annotation<string>,
+  diff: Annotation<DiffInfo>,
+  changeDescription: Annotation<string>,
 });
 
 export type WriterStateValue = typeof WriterState.State;

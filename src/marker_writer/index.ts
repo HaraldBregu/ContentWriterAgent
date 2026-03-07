@@ -9,154 +9,84 @@ async function main() {
   const M = CONTINUE_MARKER;
 
   // ─────────────────────────────────────────────
-  // Pattern 1: text text text█
-  // Marker at end of document
+  // Pattern 1: text text text█ (continue)
   // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 1: End of document ===');
+  console.log('\n=== PATTERN 1: Continue at end ===');
   const r1 = await app.invoke(
     {
-      rawInput: `The history of coffee begins in Ethiopia, where legend says a goat herder named Kaldi noticed his goats dancing after eating berries from a certain tree. He tried them himself and felt a surge of energy.${M}`,
+      rawInput: `The history of coffee begins in Ethiopia, where legend says a goat herder named Kaldi noticed his goats dancing after eating berries from a certain tree.${M}`,
       userInstruction: '',
     },
     { configurable: { thread_id: 'p1' } },
   );
-  console.log('Position:', r1.parsedInput.markerPosition);
-  console.log('Operation:', r1.parsedInput.operationType);
-  console.log('Generated:', r1.generatedText.slice(0, 200) + '...');
+  console.log('Intent:', r1.intent.type);
+  console.log('Position:', r1.documentState.position);
+  console.log('Generated:', r1.processedText.slice(0, 200) + '...');
 
   // ─────────────────────────────────────────────
-  // Pattern 2: █text text text
-  // Marker at start — prepend
+  // Pattern 2: text\n\n█\n\ntext (insert/bridge)
   // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 2: Start of document ===');
+  console.log('\n=== PATTERN 2: Insert between sections ===');
   const r2 = await app.invoke(
     {
-      rawInput: `${M}The three main challenges facing remote teams are communication overhead, timezone coordination, and maintaining culture. Each requires a different approach.`,
-      userInstruction: 'write an engaging introduction',
+      rawInput: `## Introduction\n\nAI has transformed how we process information.\n\n${M}\n\n## Conclusion\n\nThe future depends on responsible development.`,
+      userInstruction: 'write the main body',
     },
     { configurable: { thread_id: 'p2' } },
   );
-  console.log('Position:', r2.parsedInput.markerPosition);
-  console.log('Operation:', r2.parsedInput.operationType);
+  console.log('Intent:', r2.intent.type);
+  console.log('Position:', r2.documentState.position);
 
   // ─────────────────────────────────────────────
-  // Pattern 3: text\n\n█\n\ntext
-  // Marker between sections
+  // Pattern 3: text█ instruction █ (inline instruction)
   // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 3: Between sections ===');
+  console.log('\n=== PATTERN 3: Inline instruction ===');
   const r3 = await app.invoke(
     {
-      rawInput: `## Introduction
-
-Artificial intelligence has transformed how we process information. The speed of advancement is unprecedented.
-
-${M}
-
-## Conclusion
-
-The future of AI depends on responsible development and thoughtful regulation.`,
-      userInstruction: 'write the main body',
+      rawInput: `The quick brown fox jumped over the lazy dog.${M} add a sentence about the cat ${M}`,
+      userInstruction: '',
     },
     { configurable: { thread_id: 'p3' } },
   );
-  console.log('Position:', r3.parsedInput.markerPosition);
-  console.log('Operation:', r3.parsedInput.operationType);
-  console.log('Current heading:', r3.parsedInput.currentHeading);
-  console.log('Next heading:', r3.parsedInput.nextHeading);
+  console.log('Intent:', r3.intent.type);
+  console.log('Instruction:', r3.intent.instruction);
+  console.log('Generated:', r3.processedText.slice(0, 200));
 
   // ─────────────────────────────────────────────
-  // Pattern 4: text text█ text text (mid-sentence)
+  // Pattern 4: rewrite region
   // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 4: Mid-sentence ===');
+  console.log('\n=== PATTERN 4: Rewrite region ===');
   const r4 = await app.invoke(
     {
-      rawInput: `The three most important factors in building a successful startup are${M} which together determine whether a company can survive its first two years.`,
-      userInstruction: '',
+      rawInput: `The conference was great. ${MARKERS.REWRITE_START}It was really good and had many nice speakers.${MARKERS.REWRITE_END} I look forward to next year.`,
+      userInstruction: 'make it more vivid and specific',
     },
     { configurable: { thread_id: 'p4' } },
   );
-  console.log('Position:', r4.parsedInput.markerPosition);
-  console.log('Is inside sentence:', r4.parsedInput.isInsideSentence);
-  console.log('Last sentence before:', r4.parsedInput.lastSentenceBefore);
+  console.log('Intent:', r4.intent.type);
+  console.log('Selected:', r4.cursorInfo.selectedRegion);
+  console.log('Rewritten:', r4.processedText.slice(0, 200));
 
   // ─────────────────────────────────────────────
-  // Pattern 5: text. █text. text (mid-paragraph)
+  // Pattern 5: █ (generate from empty)
   // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 5: Mid-paragraph ===');
+  console.log('\n=== PATTERN 5: Generate from empty ===');
   const r5 = await app.invoke(
-    {
-      rawInput: `Coffee consumption has risen steadily over the past decade. ${M}Today, the average American drinks over three cups per day.`,
-      userInstruction: 'add a sentence about why consumption increased',
-    },
-    { configurable: { thread_id: 'p5' } },
-  );
-  console.log('Position:', r5.parsedInput.markerPosition);
-  console.log('Operation:', r5.parsedInput.operationType);
-
-  // ─────────────────────────────────────────────
-  // Pattern 6: ## Heading\n█
-  // Marker after a heading
-  // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 6: After heading ===');
-  const r6 = await app.invoke(
-    {
-      rawInput: `## History of Jazz
-
-Jazz originated in the early 20th century in New Orleans, blending African American musical traditions with blues and ragtime.
-
-## The Bebop Revolution
-
-${M}
-
-## Cool Jazz and Beyond
-
-In reaction to bebop's intensity, cool jazz emerged in the late 1940s.`,
-      userInstruction: '',
-    },
-    { configurable: { thread_id: 'p6' } },
-  );
-  console.log('Position:', r6.parsedInput.markerPosition);
-  console.log('Current heading:', r6.parsedInput.currentHeading);
-  console.log('Next heading:', r6.parsedInput.nextHeading);
-
-  // ─────────────────────────────────────────────
-  // Pattern 7: █ (empty document)
-  // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 7: Empty document ===');
-  const r7 = await app.invoke(
     {
       rawInput: `${M}`,
       userInstruction: 'write a blog post about sustainable urban farming',
     },
-    { configurable: { thread_id: 'p7' } },
+    { configurable: { thread_id: 'p5' } },
   );
-  console.log('Position:', r7.parsedInput.markerPosition);
-  console.log('Operation:', r7.parsedInput.operationType);
+  console.log('Intent:', r5.intent.type);
+  console.log('Generated:', r5.processedText.slice(0, 200) + '...');
 
-  // ─────────────────────────────────────────────
-  // Pattern 8: Paired markers (rewrite region)
-  // ─────────────────────────────────────────────
-  console.log('\n=== PATTERN 8: Rewrite region ===');
-  const r8 = await app.invoke(
-    {
-      rawInput: `The conference was great. ${MARKERS.REWRITE_START}It was really good and had many nice speakers who talked about interesting things.${MARKERS.REWRITE_END} I look forward to next year.`,
-      userInstruction: 'make the highlighted part more vivid and specific',
-    },
-    { configurable: { thread_id: 'p8' } },
-  );
-  console.log('Position:', r8.parsedInput.markerPosition);
-  console.log('Operation:', r8.parsedInput.operationType);
-  console.log('Selected region:', r8.parsedInput.selectedRegion);
-
-  // ─────────────────────────────────────────────
   // Summary
-  // ─────────────────────────────────────────────
   console.log('\n' + '='.repeat(60));
-  console.log('ALL MARKER CHARACTERS:');
-  console.log('='.repeat(60));
+  console.log('MARKER CHARACTERS:');
   for (const [name, char] of Object.entries(MARKERS)) {
     console.log(
-      `  ${name}: U+${char.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')} (${char.length} byte)`,
+      `  ${name}: U+${char.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}`,
     );
   }
 }

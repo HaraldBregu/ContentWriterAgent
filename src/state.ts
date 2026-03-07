@@ -15,10 +15,6 @@ export const WritingState = Annotation.Root({
     reducer: (a, b) => b ?? a,
     default: () => '',
   }),
-  formattedContinuation: Annotation<string>({
-    reducer: (a, b) => b ?? a,
-    default: () => '',
-  }),
   evaluationScore: Annotation<number>({
     reducer: (a, b) => b ?? a,
     default: () => 0,

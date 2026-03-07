@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { CONTINUE_MARKER, MARKERS } from './markers';
+import { CONTINUE_MARKER, MARKERS } from '@/marker_writer/markers';
 
 describe('MARKERS', () => {
   it('exports a CONTINUE_MARKER equal to the CONTINUE entry', () => {
