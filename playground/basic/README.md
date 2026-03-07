@@ -33,6 +33,12 @@ npx tsx playground/basic/index.ts --prompt "Write one sentence about the ocean."
 npx tsx playground/basic/index.ts --stream --prompt "Write a short paragraph about the moon."
 ```
 
+## Limit output tokens
+
+```bash
+npx tsx playground/basic/index.ts --prompt "Write about the ocean." --max-tokens 50
+```
+
 ## Custom model
 
 ```bash
