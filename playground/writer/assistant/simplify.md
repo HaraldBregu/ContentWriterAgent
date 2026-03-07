@@ -1,0 +1,1 @@
+Simplify the given text so it is easy to understand. Use short sentences and everyday language. Replace jargon and complex words with plain alternatives. Keep the original meaning intact while making the content accessible to a wider audience.
