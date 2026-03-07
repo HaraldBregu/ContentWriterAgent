@@ -1,33 +1,49 @@
 # Instruction-based LLM Examples
 
-LLM call with input text and an instruction to transform or extend it.
+LLM call with input text, a system role, and an assistant instruction.
 
-Instructions can be passed inline with `--instruction` or loaded from a `.md` file with `--file`.
+## Folders
 
-## Available instruction files
+- `system/` — system prompts that define the LLM's role
+- `assistant/` — task instructions that tell the LLM what to do
 
-- `expand.md` — expand text into a full paragraph
-- `rewrite-professional.md` — rewrite in professional tone
-- `summarize.md` — summarize into one or two sentences
-- `continue.md` — continue writing from where the text ends
-- `simplify.md` — simplify to everyday language
-- `fix-grammar.md` — fix grammar, spelling, and punctuation
+### System files
 
-## Using instruction files
+- `writing-assistant.md` (default)
+- `copywriter.md`
+- `editor.md`
+- `translator.md`
+
+### Assistant files
+
+- `expand.md`
+- `rewrite-professional.md`
+- `summarize.md`
+- `continue.md`
+- `simplify.md`
+- `fix-grammar.md`
+
+## Usage
 
 ```bash
 npx tsx playground/instructions/index.ts --input "Coffee originated in Ethiopia." --file expand
 npx tsx playground/instructions/index.ts --input "The meeting went okay I guess." --file rewrite-professional
-npx tsx playground/instructions/index.ts --input "The ship had been drifting for three days." --file summarize
 npx tsx playground/instructions/index.ts --input "The ship had been drifting for three days." --file continue
-npx tsx playground/instructions/index.ts --input "AI is very complecated and hard to undrestand." --file fix-grammar
-npx tsx playground/instructions/index.ts --input "Quantum entanglement is a phenomenon whereby two particles become interconnected." --file simplify
+npx tsx playground/instructions/index.ts --input "AI is very complecated." --file fix-grammar
 ```
 
-## Inline instruction
+## With a different system role
 
 ```bash
-npx tsx playground/instructions/index.ts --input "Coffee originated in Ethiopia." --instruction "expand this into a full paragraph"
+npx tsx playground/instructions/index.ts --system-file copywriter --input "We sell shoes." --file expand
+npx tsx playground/instructions/index.ts --system-file editor --input "The meeting went okay I guess." --file rewrite-professional
+npx tsx playground/instructions/index.ts --system-file translator --input "Good morning, how are you?" --instruction "translate to Italian"
+```
+
+## Inline system and instruction
+
+```bash
+npx tsx playground/instructions/index.ts --system "You are a poet." --input "The ocean is vast." --instruction "rewrite as a haiku"
 ```
 
 ## Stream response
