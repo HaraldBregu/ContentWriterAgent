@@ -220,8 +220,7 @@ async function analyzeStyle(
   );
   const model = createUnderstandingModel();
   const response = await model.invoke([{ role: 'user', content: prompt }]);
-  const content =
-    typeof response.content === 'string' ? response.content : '';
+  const content = typeof response.content === 'string' ? response.content : '';
   return parseStyleResponse(content);
 }
 
@@ -413,7 +412,12 @@ export async function writerNode(
           genre: '',
           notablePatterns: [],
         }
-      : await analyzeStyle(beforeParagraph, afterParagraph, intent.type, targetLength);
+      : await analyzeStyle(
+          beforeParagraph,
+          afterParagraph,
+          intent.type,
+          targetLength,
+        );
 
   const prompt = buildWriterPrompt(
     intent,
