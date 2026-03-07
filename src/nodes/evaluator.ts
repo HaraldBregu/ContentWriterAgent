@@ -1,6 +1,6 @@
-import { ChatOpenAI } from "@langchain/openai";
-import { config } from "@/config";
-import type { WritingStateValue, AttemptRecord } from "@/state";
+import { ChatOpenAI } from '@langchain/openai';
+import { config } from '@/config';
+import type { WritingStateValue, AttemptRecord } from '@/state';
 
 export async function evaluatorNode(
   state: WritingStateValue,
@@ -12,21 +12,20 @@ export async function evaluatorNode(
 
   const response = await model.invoke([
     {
-      role: "system",
+      role: 'system',
       content:
         'Evaluate this text continuation. Respond with JSON: {"score": <1-10>, "feedback": "<brief feedback>"}',
     },
     {
-      role: "user",
+      role: 'user',
       content: `Original:\n${state.inputText}\n\nContinuation:\n${state.continuation}`,
     },
   ]);
 
-  const content =
-    typeof response.content === "string" ? response.content : "";
+  const content = typeof response.content === 'string' ? response.content : '';
 
   let score = 0;
-  let feedback = "";
+  let feedback = '';
 
   try {
     const parsed = JSON.parse(content);

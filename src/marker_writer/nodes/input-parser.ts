@@ -1,6 +1,6 @@
-import { MARKERS } from "@/marker_writer/markers";
-import type { MarkerName } from "@/marker_writer/markers";
-import type { WriterStateValue } from "@/marker_writer/state";
+import { MARKERS } from '@/marker_writer/markers';
+import type { MarkerName } from '@/marker_writer/markers';
+import type { WriterStateValue } from '@/marker_writer/state';
 import type {
   CursorInfo,
   Intent,
@@ -9,7 +9,7 @@ import type {
   Structure,
   MarkerPosition,
   IntentType,
-} from "@/marker_writer/types";
+} from '@/marker_writer/types';
 import {
   stripAllMarkers,
   extractLastSentence,
@@ -20,14 +20,14 @@ import {
   countWords,
   getLineNumber,
   getColumnNumber,
-} from "@/marker_writer/helpers";
+} from '@/marker_writer/helpers';
 
 function detectMarkerType(rawInput: string): MarkerName {
-  if (rawInput.includes(MARKERS.REWRITE_START)) return "REWRITE_START";
-  if (rawInput.includes(MARKERS.ENHANCE_START)) return "ENHANCE_START";
-  if (rawInput.includes(MARKERS.DELETE_START)) return "DELETE_START";
-  if (rawInput.includes(MARKERS.COMMENT)) return "COMMENT";
-  return "CONTINUE";
+  if (rawInput.includes(MARKERS.REWRITE_START)) return 'REWRITE_START';
+  if (rawInput.includes(MARKERS.ENHANCE_START)) return 'ENHANCE_START';
+  if (rawInput.includes(MARKERS.DELETE_START)) return 'DELETE_START';
+  if (rawInput.includes(MARKERS.COMMENT)) return 'COMMENT';
+  return 'CONTINUE';
 }
 
 function extractCursorInfo(
@@ -37,21 +37,21 @@ function extractCursorInfo(
   let markerIndex: number;
   let textBefore: string;
   let textAfter: string;
-  let selectedRegion = "";
+  let selectedRegion = '';
 
-  if (markerType === "REWRITE_START") {
+  if (markerType === 'REWRITE_START') {
     markerIndex = rawInput.indexOf(MARKERS.REWRITE_START);
     textBefore = rawInput.slice(0, markerIndex);
     const endIdx = rawInput.indexOf(MARKERS.REWRITE_END);
     selectedRegion = rawInput.slice(markerIndex + 1, endIdx);
     textAfter = rawInput.slice(endIdx + 1);
-  } else if (markerType === "ENHANCE_START") {
+  } else if (markerType === 'ENHANCE_START') {
     markerIndex = rawInput.indexOf(MARKERS.ENHANCE_START);
     textBefore = rawInput.slice(0, markerIndex);
     const endIdx = rawInput.indexOf(MARKERS.ENHANCE_END);
     selectedRegion = rawInput.slice(markerIndex + 1, endIdx);
     textAfter = rawInput.slice(endIdx + 1);
-  } else if (markerType === "DELETE_START") {
+  } else if (markerType === 'DELETE_START') {
     markerIndex = rawInput.indexOf(MARKERS.DELETE_START);
     textBefore = rawInput.slice(0, markerIndex);
     const endIdx = rawInput.indexOf(MARKERS.DELETE_END);
@@ -84,19 +84,19 @@ function detectPosition(cursor: CursorInfo): MarkerPosition {
   const before = cursor.textBefore.trim();
   const after = cursor.textAfter.trim();
 
-  if (!before && !after) return "EMPTY_DOCUMENT";
-  if (cursor.selectedRegion) return "REGION_SELECTED";
-  if (!before) return "START_OF_TEXT";
-  if (!after) return "END_OF_TEXT";
+  if (!before && !after) return 'EMPTY_DOCUMENT';
+  if (cursor.selectedRegion) return 'REGION_SELECTED';
+  if (!before) return 'START_OF_TEXT';
+  if (!after) return 'END_OF_TEXT';
 
-  if (/\n\s*\n\s*$/.test(cursor.textBefore)) return "BETWEEN_BLOCKS";
-  if (/^\s*\n\s*\n/.test(cursor.textAfter)) return "BETWEEN_BLOCKS";
-  if (/^\s*#{1,6}\s/.test(cursor.textAfter)) return "BEFORE_HEADING";
-  if (/#{1,6}\s+.+\n\s*$/.test(cursor.textBefore)) return "AFTER_HEADING";
-  if (/\n\s*$/.test(cursor.textBefore)) return "BETWEEN_LINES";
-  if (/[.!?]\s*$/.test(before)) return "MID_PARAGRAPH";
+  if (/\n\s*\n\s*$/.test(cursor.textBefore)) return 'BETWEEN_BLOCKS';
+  if (/^\s*\n\s*\n/.test(cursor.textAfter)) return 'BETWEEN_BLOCKS';
+  if (/^\s*#{1,6}\s/.test(cursor.textAfter)) return 'BEFORE_HEADING';
+  if (/#{1,6}\s+.+\n\s*$/.test(cursor.textBefore)) return 'AFTER_HEADING';
+  if (/\n\s*$/.test(cursor.textBefore)) return 'BETWEEN_LINES';
+  if (/[.!?]\s*$/.test(before)) return 'MID_PARAGRAPH';
 
-  return "MID_SENTENCE";
+  return 'MID_SENTENCE';
 }
 
 function inferIntent(
@@ -109,25 +109,25 @@ function inferIntent(
   let instruction = userInstruction;
 
   switch (markerType) {
-    case "REWRITE_START":
-      type = "rewrite";
+    case 'REWRITE_START':
+      type = 'rewrite';
       break;
-    case "ENHANCE_START":
-      type = "expand";
+    case 'ENHANCE_START':
+      type = 'expand';
       break;
-    case "DELETE_START":
-      type = "delete";
+    case 'DELETE_START':
+      type = 'delete';
       break;
     default:
       if (cursor.selectedRegion && !userInstruction) {
         instruction = cursor.selectedRegion;
       }
-      if (position === "EMPTY_DOCUMENT") {
-        type = "generate";
-      } else if (position === "BETWEEN_BLOCKS") {
-        type = "insert";
+      if (position === 'EMPTY_DOCUMENT') {
+        type = 'generate';
+      } else if (position === 'BETWEEN_BLOCKS') {
+        type = 'insert';
       } else {
-        type = "continue";
+        type = 'continue';
       }
   }
 
@@ -135,12 +135,12 @@ function inferIntent(
 }
 
 function estimateTargetLength(intent: Intent, cursor: CursorInfo): number {
-  if (intent.type === "rewrite" || intent.type === "expand") {
+  if (intent.type === 'rewrite' || intent.type === 'expand') {
     const regionWords = countWords(cursor.selectedRegion);
-    return intent.type === "expand" ? regionWords * 2 : regionWords;
+    return intent.type === 'expand' ? regionWords * 2 : regionWords;
   }
-  if (intent.type === "delete") return 0;
-  if (intent.type === "generate") return 300;
+  if (intent.type === 'delete') return 0;
+  if (intent.type === 'generate') return 300;
 
   const existingWords = countWords(cursor.textBefore + cursor.textAfter);
   if (existingWords < 50) return 50;
@@ -171,16 +171,16 @@ export function inputParserNode(
     lastSentenceBefore: extractLastSentence(cursorInfo.textBefore),
     firstSentenceAfter: extractFirstSentence(cursorInfo.textAfter),
     isInsideParagraph:
-      position === "MID_PARAGRAPH" || position === "MID_SENTENCE",
-    isInsideSentence: position === "MID_SENTENCE",
+      position === 'MID_PARAGRAPH' || position === 'MID_SENTENCE',
+    isInsideSentence: position === 'MID_SENTENCE',
   };
 
   const structure: Structure = {
     currentHeading: findCurrentHeading(cursorInfo.textBefore),
     previousHeading: findPreviousHeading(cursorInfo.textBefore),
     nextHeading: findNextHeading(cursorInfo.textAfter),
-    isAfterHeading: position === "AFTER_HEADING",
-    isBeforeHeading: position === "BEFORE_HEADING",
+    isAfterHeading: position === 'AFTER_HEADING',
+    isBeforeHeading: position === 'BEFORE_HEADING',
   };
 
   const targetLength = estimateTargetLength(intent, cursorInfo);

@@ -62,3 +62,17 @@ export function getColumnNumber(text: string, charIndex: number): number {
   const lastNewline = text.lastIndexOf('\n', charIndex - 1);
   return charIndex - lastNewline;
 }
+
+export function extractLastParagraph(text: string): string {
+  const trimmed = text.trimEnd();
+  if (!trimmed) return '';
+  const paragraphs = trimmed.split(/\n\s*\n/);
+  return (paragraphs[paragraphs.length - 1] || '').trim();
+}
+
+export function extractFirstParagraph(text: string): string {
+  const trimmed = text.trimStart();
+  if (!trimmed) return '';
+  const paragraphs = trimmed.split(/\n\s*\n/);
+  return (paragraphs[0] || '').trim();
+}

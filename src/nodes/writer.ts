@@ -1,6 +1,6 @@
-import { ChatOpenAI } from "@langchain/openai";
-import { config } from "@/config";
-import type { WritingStateValue } from "@/state";
+import { ChatOpenAI } from '@langchain/openai';
+import { config } from '@/config';
+import type { WritingStateValue } from '@/state';
 
 export async function writerNode(
   state: WritingStateValue,
@@ -14,9 +14,9 @@ export async function writerNode(
     ? `Continue this text naturally. Previous feedback: ${state.evaluationFeedback}\n\nText:\n${state.inputText}`
     : `Continue this text naturally in ${config.continuationLength}:\n\n${state.inputText}`;
 
-  const response = await model.invoke([{ role: "user", content: prompt }]);
+  const response = await model.invoke([{ role: 'user', content: prompt }]);
   const continuation =
-    typeof response.content === "string" ? response.content : "";
+    typeof response.content === 'string' ? response.content : '';
 
   return { continuation };
 }
