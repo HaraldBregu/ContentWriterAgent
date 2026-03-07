@@ -1,4 +1,5 @@
 import { MARKERS } from '@/marker_writer/markers';
+import { createUnderstandingModel } from '@/marker_writer/models';
 import type { MarkerName } from '@/marker_writer/markers';
 import type { WriterStateValue } from '@/marker_writer/state';
 import type {
@@ -7,6 +8,7 @@ import type {
   DocumentState,
   Context,
   Structure,
+  StyleProfile,
   MarkerPosition,
   IntentType,
 } from '@/marker_writer/types';
@@ -150,9 +152,62 @@ function estimateTargetLength(intent: Intent, cursor: CursorInfo): number {
   return 200;
 }
 
-export function inputParserNode(
+function buildAnalysisPrompt(
+  beforeText: string,
+  afterText: string,
+  intentType: IntentType,
+  targetLength: number,
+): string {
+  const actionLabel = intentType.toUpperCase();
+
+  let prompt = `Analyze the writing style of the following text.\n\n`;
+  prompt += `## Inputs\n\n`;
+  prompt += `### BEFORE_TEXT\n<before_text>\n${beforeText}\n</before_text>\n\n`;
+  prompt += `### AFTER_TEXT\n<after_text>\n${afterText}\n</after_text>\n\n`;
+  prompt += `### GENERATION TARGET\n`;
+  prompt += `- Requested length: ${targetLength} words\n`;
+  prompt += `- Action type: ${actionLabel}\n\n`;
+  prompt += `## Instructions\n\n`;
+  prompt += `Based on the BEFORE_TEXT and AFTER_TEXT, extract the writing style. `;
+  prompt += `Respond with ONLY a JSON object (no markdown fences) with these fields:\n`;
+  prompt += `- "tense": the narrative tense (e.g. "past", "present")\n`;
+  prompt += `- "pointOfView": the narrative POV (e.g. "third person limited (Elena)", "first person")\n`;
+  prompt += `- "tone": comma-separated tone descriptors (e.g. "suspenseful, atmospheric")\n`;
+  prompt += `- "formality": the writing register (e.g. "literary fiction", "casual", "academic")\n`;
+  prompt += `- "genre": the genre (e.g. "dark fantasy", "sci-fi", "memoir")\n`;
+  prompt += `- "notablePatterns": array of notable stylistic patterns (e.g. ["short punchy sentences", "heavy use of metaphor"])`;
+
+  return prompt;
+}
+
+function parseStyleResponse(content: string): StyleProfile {
+  const fallback: StyleProfile = {
+    tense: 'past',
+    pointOfView: 'third person',
+    tone: 'neutral',
+    formality: 'standard',
+    genre: 'general',
+    notablePatterns: [],
+  };
+
+  try {
+    const parsed = JSON.parse(content);
+    return {
+      tense: parsed.tense || fallback.tense,
+      pointOfView: parsed.pointOfView || fallback.pointOfView,
+      tone: parsed.tone || fallback.tone,
+      formality: parsed.formality || fallback.formality,
+      genre: parsed.genre || fallback.genre,
+      notablePatterns: parsed.notablePatterns || fallback.notablePatterns,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export async function inputParserNode(
   state: WriterStateValue,
-): Partial<WriterStateValue> {
+): Promise<Partial<WriterStateValue>> {
   const { rawInput, userInstruction } = state;
 
   const markerType = detectMarkerType(rawInput);
@@ -160,6 +215,7 @@ export function inputParserNode(
   const position = detectPosition(cursorInfo);
   const intent = inferIntent(markerType, position, cursorInfo, userInstruction);
   const cleanText = stripAllMarkers(rawInput);
+  const targetLength = estimateTargetLength(intent, cursorInfo);
 
   const documentState: DocumentState = {
     cleanText,
@@ -187,7 +243,32 @@ export function inputParserNode(
     isBeforeHeading: position === 'BEFORE_HEADING',
   };
 
-  const targetLength = estimateTargetLength(intent, cursorInfo);
+  let styleProfile: StyleProfile;
+
+  if (intent.type === 'delete' || position === 'EMPTY_DOCUMENT') {
+    styleProfile = {
+      tense: '',
+      pointOfView: '',
+      tone: '',
+      formality: '',
+      genre: '',
+      notablePatterns: [],
+    };
+  } else {
+    const prompt = buildAnalysisPrompt(
+      context.immediateBefore,
+      context.immediateAfter,
+      intent.type,
+      targetLength,
+    );
+    const model = createUnderstandingModel();
+    const response = await model.invoke([
+      { role: 'user', content: prompt },
+    ]);
+    const content =
+      typeof response.content === 'string' ? response.content : '';
+    styleProfile = parseStyleResponse(content);
+  }
 
   return {
     cursorInfo,
@@ -195,6 +276,7 @@ export function inputParserNode(
     documentState,
     context,
     structure,
+    styleProfile,
     targetLength,
   };
 }
