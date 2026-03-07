@@ -170,6 +170,8 @@ export function inputParserNode(
   const context: Context = {
     immediateBefore: cursorInfo.textBefore.slice(-500),
     immediateAfter: cursorInfo.textAfter.slice(0, 500),
+    beforeParagraph: extractLastParagraph(cursorInfo.textBefore),
+    afterParagraph: extractFirstParagraph(cursorInfo.textAfter),
     lastSentenceBefore: extractLastSentence(cursorInfo.textBefore),
     firstSentenceAfter: extractFirstSentence(cursorInfo.textAfter),
     isInsideParagraph:
