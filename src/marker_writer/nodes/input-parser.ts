@@ -14,6 +14,8 @@ import {
   stripAllMarkers,
   extractLastSentence,
   extractFirstSentence,
+  extractLastParagraph,
+  extractFirstParagraph,
   findCurrentHeading,
   findPreviousHeading,
   findNextHeading,
