@@ -5,5 +5,5 @@ Test LLM streaming responses.
 ## Stream tokens
 
 ```bash
-yarn playground:stream
+npx tsx playground/streaming/stream.ts
 ```
