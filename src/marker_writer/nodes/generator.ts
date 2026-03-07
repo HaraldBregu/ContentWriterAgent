@@ -30,7 +30,8 @@ function buildPrompt(
         `You are a skilled writer. Generate text that seamlessly continues the given text.\n` +
         `Rules:\n` +
         `- Match the tone, style, and vocabulary of the existing text\n` +
-        `- Output ONLY the generated text, no explanations or meta-commentary\n` +
+        `- Output ONLY the new continuation, do NOT repeat or include the original text\n` +
+        `- No explanations or meta-commentary\n` +
         `- Target approximately ${targetLength} words`;
       break;
     case 'expand':
