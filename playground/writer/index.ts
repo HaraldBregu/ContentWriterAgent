@@ -20,6 +20,7 @@ async function main() {
     options: {
       input: { type: 'string', short: 'i' },
       instruction: { type: 'string' },
+      file: { type: 'string', short: 'f' },
       'system-file': { type: 'string' },
       thread: { type: 'string' },
     },
