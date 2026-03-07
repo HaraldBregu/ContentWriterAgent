@@ -58,12 +58,11 @@ export interface Context {
 }
 
 export interface StyleProfile {
-  tone: string;
-  avgSentenceLength: number;
-  paragraphStyle: string;
-  vocabulary: string;
-  pointOfView: string;
   tense: string;
+  pointOfView: string;
+  tone: string;
+  formality: string;
+  genre: string;
   notablePatterns: string[];
 }
 
