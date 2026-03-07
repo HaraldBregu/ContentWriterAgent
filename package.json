@@ -10,7 +10,6 @@
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit",
     "marker-writer": "tsx src/marker_writer/index.ts",
-    "marker-writer:cli": "tsx src/marker_writer/cli.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run"
