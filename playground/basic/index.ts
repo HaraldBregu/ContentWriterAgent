@@ -12,6 +12,7 @@ async function main() {
       system: { type: 'string', short: 's' },
       temperature: { type: 'string', short: 't' },
       model: { type: 'string', short: 'm' },
+      stream: { type: 'boolean' },
     },
   });
 
