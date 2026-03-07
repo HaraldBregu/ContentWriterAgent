@@ -26,6 +26,7 @@ async function main() {
       { role: 'user', content: `${inputText}\n\nInstruction: ${instruction}` },
     ],
     response: result.generatedText,
+    durationMs: Date.now() - start,
   });
 }
 
