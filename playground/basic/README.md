@@ -27,6 +27,12 @@ npx tsx playground/basic/index.ts --prompt "Write one sentence about the ocean."
 npx tsx playground/basic/index.ts --prompt "Write one sentence about the ocean." --temperature 1
 ```
 
+## Stream response
+
+```bash
+npx tsx playground/basic/index.ts --stream --prompt "Write a short paragraph about the moon."
+```
+
 ## Custom model
 
 ```bash
