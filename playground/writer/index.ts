@@ -1,46 +1,21 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
 import { parseArgs } from 'util';
 import { createWritingGraph } from '../../src/graph';
 import { saveResult } from '../save-result';
-
-const instructionsDir = join(
-  dirname(import.meta.filename),
-  '..',
-  'instructions',
-);
-
-function loadFile(folder: string, name: string): string {
-  const filePath = name.endsWith('.md') ? name : `${name}.md`;
-  return readFileSync(join(instructionsDir, folder, filePath), 'utf-8').trim();
-}
 
 async function main() {
   const { values } = parseArgs({
     options: {
       input: { type: 'string', short: 'i' },
       instruction: { type: 'string' },
-      'system-file': { type: 'string' },
-      file: { type: 'string', short: 'f' },
       thread: { type: 'string' },
     },
   });
 
   const input = values.input ?? '';
-
-  let instruction = values.instruction ?? '';
-  if (values.file) {
-    instruction = loadFile('assistant', values.file);
-  }
-
-  let systemPrompt = '';
-  if (values['system-file']) {
-    systemPrompt = loadFile('system', values['system-file']);
-  }
-
+  const instruction = values.instruction ?? '';
   const threadId = values.thread ?? 'playground';
 
   if (!input) {
@@ -48,21 +23,15 @@ async function main() {
     process.exit(1);
   }
 
-  const inputText = [
-    systemPrompt ? `System: ${systemPrompt}\n\n` : '',
-    input,
-    instruction ? `\n\nInstruction: ${instruction}` : '',
-  ].join('');
-
   const graph = createWritingGraph();
 
   const start = Date.now();
   const result = await graph.invoke(
-    { inputText, instruction },
+    { inputText: input, instruction },
     { configurable: { thread_id: threadId } },
   );
 
-  console.log('INPUT:', input);
+  console.log('INPUT:', result.inputText);
   console.log('\nOUTPUT:', result.generatedText);
 
   saveResult(import.meta.filename, {
