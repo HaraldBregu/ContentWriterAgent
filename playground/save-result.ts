@@ -29,7 +29,7 @@ export function saveResult(
 **Timestamp:** ${new Date().toISOString()}
 **Model:** ${data.model}
 **Temperature:** ${data.temperature}
-**Duration:** ${data.durationMs}ms
+**Duration:** ${data.durationMs}ms${data.maxTokens ? `\n**Max Tokens:** ${data.maxTokens}` : ''}
 
 ## Messages
 
