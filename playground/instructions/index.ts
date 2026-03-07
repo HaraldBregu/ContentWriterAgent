@@ -7,11 +7,18 @@ import { parseArgs } from 'util';
 import { ChatOpenAI } from '@langchain/openai';
 import { saveResult } from '../save-result';
 
+function loadFile(dir: string, folder: string, name: string): string {
+  const filePath = name.endsWith('.md') ? name : `${name}.md`;
+  return readFileSync(join(dir, folder, filePath), 'utf-8').trim();
+}
+
 async function main() {
   const { values } = parseArgs({
     options: {
       input: { type: 'string', short: 'i' },
       instruction: { type: 'string' },
+      system: { type: 'string', short: 's' },
+      'system-file': { type: 'string' },
       file: { type: 'string', short: 'f' },
       temperature: { type: 'string', short: 't' },
       model: { type: 'string', short: 'm' },
@@ -20,18 +27,22 @@ async function main() {
     },
   });
 
+  const dir = dirname(import.meta.filename);
   const modelName = values.model ?? 'gpt-4o';
   const temperature = values.temperature ? parseFloat(values.temperature) : 0.7;
   const input = values.input ?? '';
+
   let instruction = values.instruction ?? '';
   if (values.file) {
-    const filePath = values.file.endsWith('.md')
-      ? values.file
-      : `${values.file}.md`;
-    instruction = readFileSync(
-      join(dirname(import.meta.filename), filePath),
-      'utf-8',
-    ).trim();
+    instruction = loadFile(dir, 'assistant', values.file);
+  }
+
+  let systemPrompt = values.system ?? '';
+  if (values['system-file']) {
+    systemPrompt = loadFile(dir, 'system', values['system-file']);
+  }
+  if (!systemPrompt) {
+    systemPrompt = loadFile(dir, 'system', 'writing-assistant');
   }
 
   if (!input && !instruction) {
@@ -44,11 +55,7 @@ async function main() {
     .join('\n\n');
 
   const messages: { role: 'system' | 'user'; content: string }[] = [
-    {
-      role: 'system',
-      content:
-        'You are a writing assistant. Follow the instruction to transform or extend the given text. Respond only with the result.',
-    },
+    { role: 'system', content: systemPrompt },
     { role: 'user', content: prompt },
   ];
 
