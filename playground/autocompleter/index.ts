@@ -31,8 +31,14 @@ async function main() {
   const messages: { role: 'system' | 'user'; content: string }[] = [
     {
       role: 'system',
-      content:
-        'You are an autocomplete engine. The user will provide an incomplete text. Complete the text naturally from where it ends. Do not repeat the input. Respond only with the continuation.',
+      content: [
+        'You are an inline autocomplete engine.',
+        'The user will provide a text that may be an incomplete sentence or a complete passage.',
+        'If the sentence is incomplete, finish it naturally.',
+        'If the text is complete, continue writing a short follow-up of one or two sentences.',
+        'Keep the same tone, style, and subject.',
+        'Do not repeat the input. Respond only with the continuation.',
+      ].join(' '),
     },
     { role: 'user', content: input },
   ];
